@@ -15,37 +15,62 @@ export function ForecastDaily({ days }: ForecastDailyProps) {
 
   return (
     <section>
-      <h2 className="text-lg font-semibold text-foreground mb-4 tracking-tight">
-        7-day forecast
-      </h2>
+      <div className="flex items-end justify-between mb-4">
+        <h2 className="text-lg font-semibold text-foreground tracking-tight">
+          7-day forecast
+        </h2>
+        <span className="text-[11px] text-muted uppercase tracking-[0.2em]">
+          Daily outlook
+        </span>
+      </div>
 
-      <ul className="flex gap-2 overflow-x-auto pb-3 forecast-scroll snap-x snap-mandatory lg:grid lg:grid-cols-7 lg:pb-0 lg:overflow-visible">
-        {days.map((day, i) => (
-          <li
-            key={day.dateISO}
-            className="glass glass-hover rounded-2xl p-3 sm:p-4 flex flex-col items-center gap-2 min-w-[108px] snap-start shrink-0 lg:shrink lg:min-w-0 animate-fade-in-up"
-            style={{ animationDelay: `${0.3 + i * 0.06}s` }}
-          >
-            <span className="text-[11px] font-semibold text-muted uppercase tracking-wider">
-              {formatDate(day.dateISO)}
-            </span>
-            <span className="text-3xl" aria-hidden="true">
-              {getWeatherEmoji(day.weatherCode)}
-            </span>
-            <div className="flex flex-col items-center gap-0.5">
-              <dd className="text-base font-bold text-accent-amber">
-                {formatTemp(day.tempMax)}
-              </dd>
-              <dd className="text-sm text-muted">
-                {formatTemp(day.tempMin)}
-              </dd>
-            </div>
-            <p className="text-[10px] text-foreground/40 text-center leading-tight line-clamp-2">
-              {day.description}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="glass rounded-3xl overflow-hidden">
+        <div className="hidden sm:grid grid-cols-[110px_1fr_auto] gap-4 px-4 sm:px-6 py-3 text-[11px] text-muted uppercase tracking-widest border-b border-white/10">
+          <span>Day</span>
+          <span>Conditions</span>
+          <span className="text-right">High / Low</span>
+        </div>
+        <ul className="divide-y divide-white/10">
+          {days.map((day, i) => (
+            <li
+              key={day.dateISO}
+              className="flex flex-col gap-3 px-4 sm:px-6 py-4 sm:grid sm:grid-cols-[110px_1fr_auto] sm:items-center animate-fade-in-up"
+              style={{ animationDelay: `${0.2 + i * 0.05}s` }}
+            >
+              <div className="flex items-center justify-between sm:block">
+                <span className="text-xs font-semibold text-muted uppercase tracking-wider">
+                  {formatDate(day.dateISO)}
+                </span>
+                <span className="text-xs text-muted sm:hidden whitespace-nowrap">
+                  High {formatTemp(day.tempMax)} · Low {formatTemp(day.tempMin)}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl" aria-hidden="true">
+                  {getWeatherEmoji(day.weatherCode)}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {day.description}
+                  </p>
+                  <p className="text-xs text-muted">
+                    Typical conditions for the day
+                  </p>
+                </div>
+              </div>
+              <div className="text-right whitespace-nowrap hidden sm:block">
+                <span className="text-sm font-semibold text-accent-amber">
+                  High {formatTemp(day.tempMax)}
+                </span>
+                <span className="text-foreground/40 mx-2">·</span>
+                <span className="text-sm text-muted">
+                  Low {formatTemp(day.tempMin)}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }

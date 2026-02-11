@@ -57,12 +57,150 @@ body {
   animation: drift 35s ease-in-out infinite reverse;
 }
 
+/* ── Weather effects ───────────────────────────────────────── */
+
+.weather-effect {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.weather-effect::before,
+.weather-effect::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  opacity: 0;
+}
+
+.weather-effect--clear {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 75% 12%, rgba(255, 223, 120, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 20% 18%, rgba(94, 174, 247, 0.16) 0%, transparent 50%);
+}
+
+.weather-effect--cloudy {
+  opacity: 1;
+}
+
+.weather-effect--cloudy::before {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 50%, transparent 70%),
+    radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 55%, transparent 75%),
+    radial-gradient(circle at 45% 60%, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 55%, transparent 75%);
+  animation: cloud-drift 40s ease-in-out infinite;
+}
+
+.weather-effect--fog {
+  opacity: 1;
+}
+
+.weather-effect--fog::before {
+  opacity: 0.85;
+  background:
+    linear-gradient(90deg, rgba(150, 170, 210, 0.16), rgba(100, 120, 160, 0.10), rgba(150, 170, 210, 0.16));
+  filter: blur(10px);
+  animation: fog-drift 30s ease-in-out infinite;
+}
+
+.weather-effect--rain {
+  opacity: 1;
+}
+
+.weather-effect--rain::before {
+  opacity: 0.7;
+  background-image: repeating-linear-gradient(
+    -12deg,
+    rgba(120, 180, 255, 0.0) 0,
+    rgba(120, 180, 255, 0.0) 8px,
+    rgba(120, 180, 255, 0.25) 8px,
+    rgba(120, 180, 255, 0.25) 10px
+  );
+  background-size: 18px 26px;
+  animation: rain-fall 0.8s linear infinite;
+}
+
+.weather-effect--snow {
+  opacity: 1;
+}
+
+.weather-effect--snow::before {
+  opacity: 0.7;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1px);
+  background-size: 18px 18px;
+  animation: snow-fall 6s linear infinite;
+}
+
+.weather-effect--snow::after {
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 28px 28px;
+  animation: snow-fall 9s linear infinite;
+}
+
+.weather-effect--thunder {
+  opacity: 1;
+}
+
+.weather-effect--thunder::before {
+  opacity: 0.8;
+  background-image: repeating-linear-gradient(
+    -12deg,
+    rgba(160, 200, 255, 0.0) 0,
+    rgba(160, 200, 255, 0.0) 6px,
+    rgba(160, 200, 255, 0.3) 6px,
+    rgba(160, 200, 255, 0.3) 8px
+  );
+  background-size: 18px 24px;
+  animation: rain-fall 0.7s linear infinite;
+}
+
+.weather-effect--thunder::after {
+  opacity: 0;
+  background:
+    radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.7) 0%, transparent 45%);
+  animation: lightning 6s ease-in-out infinite;
+}
+
 /* ── Keyframes ──────────────────────────────────────────────── */
 
 @keyframes drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(40px, -30px) scale(1.05); }
   66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+@keyframes cloud-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-60px, 20px); }
+}
+
+@keyframes fog-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-80px); }
+}
+
+@keyframes rain-fall {
+  0% { background-position: 0 0; }
+  100% { background-position: -40px 120px; }
+}
+
+@keyframes snow-fall {
+  0% { background-position: 0 -20px; }
+  100% { background-position: 20px 140px; }
+}
+
+@keyframes lightning {
+  0%, 82%, 100% { opacity: 0; }
+  83% { opacity: 0.6; }
+  85% { opacity: 0.1; }
+  88% { opacity: 0.7; }
+  90% { opacity: 0; }
 }
 
 @keyframes fade-in-up {
@@ -101,6 +239,46 @@ body {
   border-color: rgba(255, 255, 255, 0.16);
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Dropdown palette ───────────────────────────────────────── */
+
+@keyframes dropdown-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-reveal {
+  animation: dropdown-reveal 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+
+.dropdown-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+}
+
+.dropdown-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 /* ── Custom scrollbar ───────────────────────────────────────── */

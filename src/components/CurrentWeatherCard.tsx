@@ -41,13 +41,13 @@ export function CurrentWeatherCard({ data }: CurrentWeatherCardProps) {
               <dt className="text-[11px] font-semibold text-muted uppercase tracking-[0.15em]">
                 Temperature
               </dt>
-              <dd className="text-7xl sm:text-8xl font-extralight text-foreground tracking-tighter font-mono leading-none mt-1">
+              <dd className="text-6xl sm:text-7xl lg:text-8xl font-extralight text-foreground tracking-tighter font-mono leading-none mt-1 whitespace-nowrap">
                 {formatTemp(current.temperature)}
               </dd>
             </div>
             <div className="flex items-center gap-2 text-muted mb-2">
               <dt className="text-sm">Feels like</dt>
-              <dd className="text-base font-semibold text-foreground/80">
+              <dd className="text-base font-semibold text-foreground/80 whitespace-nowrap">
                 {formatTemp(current.apparentTemperature)}
               </dd>
             </div>
