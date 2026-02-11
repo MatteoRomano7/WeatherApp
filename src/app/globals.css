@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #06081a;
+  --color-foreground: #e8ecf4;
+  --color-muted: #6b7fa8;
+  --color-accent-amber: #f5b942;
+  --color-accent-sky: #5eaef7;
+  --color-accent-rose: #f07068;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: #06081a;
+  color: #e8ecf4;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Atmospheric background ─────────────────────────────────── */
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 8%, rgba(56, 30, 120, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 12%, rgba(20, 60, 130, 0.30) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 95%, rgba(140, 50, 20, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #06081a 0%, #0d1230 50%, #080c1e 100%);
+}
+
+.atmosphere::before,
+.atmosphere::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.atmosphere::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(90, 100, 240, 0.07) 0%, transparent 70%);
+  top: -15%;
+  left: -10%;
+  animation: drift 30s ease-in-out infinite;
+}
+
+.atmosphere::after {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(200, 120, 50, 0.05) 0%, transparent 70%);
+  bottom: -10%;
+  right: -10%;
+  animation: drift 35s ease-in-out infinite reverse;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────── */
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.05); }
+  66% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.7s ease-out both;
+}
+
+/* ── Glass morphism ─────────────────────────────────────────── */
+
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-hover {
+  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Custom scrollbar ───────────────────────────────────────── */
+
+.forecast-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.forecast-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.forecast-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.forecast-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+.forecast-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
