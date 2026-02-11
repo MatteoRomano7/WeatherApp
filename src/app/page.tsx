@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from 'react';
 import { useWeather } from '@/lib/hooks/useWeather';
 import { SearchBar } from '@/components/SearchBar';
 import { CurrentWeatherCard } from '@/components/CurrentWeatherCard';
 import { ForecastDaily } from '@/components/ForecastDaily';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { LoadingState } from '@/components/LoadingState';
+import { groupHourlyByDay } from '@/lib/utils/formatters';
 
 type WeatherEffect =
   | 'default'
@@ -30,7 +32,11 @@ function getWeatherEffect(code?: number): WeatherEffect {
 }
 
 export default function Home() {
-  const { query, status, data, error, search, retry } = useWeather();
+  const { query, status, data, error, selectedDay, search, retry, selectDay } = useWeather();
+  const hourlyByDay = useMemo(
+    () => (data?.hourly ? groupHourlyByDay(data.hourly) : undefined),
+    [data],
+  );
   const weatherEffect =
     status === 'success' && data
       ? getWeatherEffect(data.current.weatherCode)
@@ -81,7 +87,12 @@ export default function Home() {
                 <CurrentWeatherCard data={data} />
               </div>
               <div className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
-                <ForecastDaily days={data.daily} />
+                <ForecastDaily
+                  days={data.daily}
+                  hourlyByDay={hourlyByDay}
+                  selectedDay={selectedDay}
+                  onSelectDay={selectDay}
+                />
               </div>
             </div>
           )}

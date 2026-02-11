@@ -56,6 +56,15 @@ describe('Integration Tests - Home Component', () => {
         temperature_2m_min: [15, 13],
         weather_code: [0, 61],
       },
+      hourly: {
+        time: ['2025-01-12T00:00', '2025-01-12T01:00', '2025-01-13T00:00', '2025-01-13T01:00'],
+        temperature_2m: [18, 17, 16, 15],
+        weather_code: [0, 0, 61, 61],
+        wind_speed_10m: [5, 6, 10, 12],
+        wind_direction_10m: [180, 190, 270, 280],
+        relative_humidity_2m: [60, 62, 70, 72],
+        precipitation_probability: [0, 0, 40, 50],
+      },
     };
 
     // Setup fetch mock to return different responses based on URL
@@ -116,13 +125,13 @@ describe('Integration Tests - Home Component', () => {
 
     expect(screen.getByText('Italy')).toBeInTheDocument();
 
-    // Check that temperatures are displayed (there will be multiple 22°C / 72°F from forecast)
-    const allTemps = screen.getAllByText('22°C / 72°F');
+    // Check that temperatures are displayed (em dash separator)
+    const allTemps = screen.getAllByText(/22°C.*72°F/);
     expect(allTemps.length).toBeGreaterThan(0);
 
-    expect(screen.getByText('21°C / 70°F')).toBeInTheDocument(); // Apparent temperature
+    expect(screen.getByText(/21°C.*70°F/)).toBeInTheDocument(); // Apparent temperature
     expect(screen.getByText('55%')).toBeInTheDocument(); // Humidity
-    expect(screen.getByText('10 km/h / 6 mph')).toBeInTheDocument(); // Wind
+    expect(screen.getByText(/10 km\/h.*6 mph/)).toBeInTheDocument(); // Wind
 
     // Weather description appears multiple times (current + forecast)
     const weatherDescriptions = screen.getAllByText('Clear sky');
@@ -278,6 +287,15 @@ describe('Integration Tests - Home Component', () => {
               temperature_2m_max: [24],
               temperature_2m_min: [15],
               weather_code: [0],
+            },
+            hourly: {
+              time: ['2025-01-12T00:00', '2025-01-12T01:00'],
+              temperature_2m: [18, 17],
+              weather_code: [0, 0],
+              wind_speed_10m: [5, 6],
+              wind_direction_10m: [180, 190],
+              relative_humidity_2m: [60, 62],
+              precipitation_probability: [0, 0],
             },
           }),
         });

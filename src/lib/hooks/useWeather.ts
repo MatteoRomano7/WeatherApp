@@ -13,8 +13,10 @@ interface UseWeatherReturn {
   status: Status;
   data: WeatherBundle | null;
   error: AppError | null;
+  selectedDay: string | null;
   search: (city: string) => void;
   retry: () => void;
+  selectDay: (dateISO: string) => void;
 }
 
 /**
@@ -45,6 +47,13 @@ function getInitialQuery(): string {
  * Executes the geocoding + weather fetch pipeline, updating state as it goes.
  * This is extracted as a standalone async function so it can be called from
  * both `search` and the mount effect without lint issues.
+ *
+ * @param trimmed - The trimmed city name to search for
+ * @param controller - AbortController for cancelling in-flight requests
+ * @param setStatus - State setter for the status field
+ * @param setData - State setter for the weather data
+ * @param setError - State setter for the error field
+ * @param setSelectedDay - State setter to reset the selected day on completion
  */
 async function executeFetch(
   trimmed: string,
@@ -52,6 +61,7 @@ async function executeFetch(
   setStatus: (s: Status) => void,
   setData: (d: WeatherBundle | null) => void,
   setError: (e: AppError | null) => void,
+  setSelectedDay: (d: string | null) => void,
 ): Promise<void> {
   try {
     const results = await searchCity(trimmed);
@@ -62,6 +72,7 @@ async function executeFetch(
       setStatus('error');
       setError({ code: 'CITY_NOT_FOUND', message: 'Città non trovata.' });
       setData(null);
+      setSelectedDay(null);
       return;
     }
 
@@ -72,6 +83,7 @@ async function executeFetch(
     setData(bundle);
     setStatus('success');
     setError(null);
+    setSelectedDay(null);
     saveLastSearch(trimmed);
   } catch (caught: unknown) {
     if (controller.signal.aborted) return;
@@ -84,6 +96,7 @@ async function executeFetch(
       setError({ code: 'NETWORK', message: 'Errore di rete imprevisto.' });
     }
     setData(null);
+    setSelectedDay(null);
   }
 }
 
@@ -96,6 +109,9 @@ async function executeFetch(
  * Cancels in-flight requests when a new search starts via AbortController.
  * On mount, restores and re-fetches the last searched city from localStorage.
  *
+ * Includes a `selectedDay` state for tracking which forecast day the user
+ * has selected for detail view, with toggle behavior via `selectDay`.
+ *
  * @returns An object containing current state and actions to drive the search
  */
 export function useWeather(): UseWeatherReturn {
@@ -105,6 +121,7 @@ export function useWeather(): UseWeatherReturn {
   );
   const [data, setData] = useState<WeatherBundle | null>(null);
   const [error, setError] = useState<AppError | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -117,6 +134,7 @@ export function useWeather(): UseWeatherReturn {
       setStatus('error');
       setError({ code: 'VALIDATION', message: 'Inserisci almeno 2 caratteri.' });
       setData(null);
+      setSelectedDay(null);
       return;
     }
 
@@ -132,7 +150,7 @@ export function useWeather(): UseWeatherReturn {
     setStatus('loading');
     setError(null);
 
-    executeFetch(trimmed, controller, setStatus, setData, setError);
+    executeFetch(trimmed, controller, setStatus, setData, setError, setSelectedDay);
   }, []);
 
   const retry = useCallback(() => {
@@ -140,6 +158,16 @@ export function useWeather(): UseWeatherReturn {
       search(query);
     }
   }, [query, search]);
+
+  /**
+   * Toggles the selected forecast day. If the given date is already selected,
+   * it deselects it (sets to null). Otherwise, selects the new date.
+   *
+   * @param dateISO - The ISO date string (e.g. "2025-01-12") to select or deselect
+   */
+  const selectDay = useCallback((dateISO: string) => {
+    setSelectedDay((current) => current === dateISO ? null : dateISO);
+  }, []);
 
   // On mount: if there was a saved search, kick off the fetch.
   // State is already initialized to 'loading' and the correct query via lazy initializers.
@@ -150,12 +178,12 @@ export function useWeather(): UseWeatherReturn {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    executeFetch(initialQuery, controller, setStatus, setData, setError);
+    executeFetch(initialQuery, controller, setStatus, setData, setError, setSelectedDay);
 
     return () => {
       controller.abort();
     };
   }, []);
 
-  return { query, status, data, error, search, retry };
+  return { query, status, data, error, selectedDay, search, retry, selectDay };
 }

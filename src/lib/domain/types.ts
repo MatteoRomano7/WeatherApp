@@ -22,6 +22,17 @@ export interface ForecastDay {
   description: string;
 }
 
+export interface ForecastHour {
+  timeISO: string;
+  temperature: number;
+  weatherCode: number;
+  description: string;
+  windSpeed: number;
+  windDirection: number;
+  humidity: number;
+  precipitationProbability: number;
+}
+
 export interface WeatherBundle {
   location: {
     name: string;
@@ -31,4 +42,5 @@ export interface WeatherBundle {
   };
   current: WeatherCurrent;
   daily: ForecastDay[];
+  hourly: ForecastHour[];
 }

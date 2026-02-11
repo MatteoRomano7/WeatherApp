@@ -4,6 +4,7 @@ import {
   WeatherBundle,
   WeatherCurrent,
   ForecastDay,
+  ForecastHour,
 } from '@/lib/domain/types';
 import { getWeatherDescription } from '@/lib/domain/weatherCodes';
 
@@ -35,6 +36,15 @@ interface ForecastResponse {
     temperature_2m_max?: number[];
     temperature_2m_min?: number[];
     weather_code?: number[];
+  };
+  hourly?: {
+    time?: string[];
+    temperature_2m?: number[];
+    weather_code?: number[];
+    wind_speed_10m?: number[];
+    wind_direction_10m?: number[];
+    relative_humidity_2m?: number[];
+    precipitation_probability?: number[];
   };
 }
 
@@ -84,6 +94,7 @@ export async function getWeather(geo: GeoResult): Promise<WeatherBundle> {
     `longitude=${geo.longitude}&` +
     `current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&` +
     `daily=temperature_2m_max,temperature_2m_min,weather_code&` +
+    `hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,relative_humidity_2m,precipitation_probability&` +
     `timezone=auto`;
 
   const response = await fetchJson<ForecastResponse>(url);
@@ -129,6 +140,34 @@ export async function getWeather(geo: GeoResult): Promise<WeatherBundle> {
     }
   }
 
+  // Parse hourly forecast
+  const hourlyData = response.hourly;
+  const hourly: ForecastHour[] = [];
+
+  if (hourlyData?.time && hourlyData.time.length > 0) {
+    const times = hourlyData.time;
+    const temperatures = hourlyData.temperature_2m ?? [];
+    const weatherCodes = hourlyData.weather_code ?? [];
+    const windSpeeds = hourlyData.wind_speed_10m ?? [];
+    const windDirections = hourlyData.wind_direction_10m ?? [];
+    const humidities = hourlyData.relative_humidity_2m ?? [];
+    const precipitationProbs = hourlyData.precipitation_probability ?? [];
+
+    for (let i = 0; i < times.length; i++) {
+      const code = weatherCodes[i] ?? 0;
+      hourly.push({
+        timeISO: times[i],
+        temperature: temperatures[i] ?? 0,
+        weatherCode: code,
+        description: getWeatherDescription(code),
+        windSpeed: windSpeeds[i] ?? 0,
+        windDirection: windDirections[i] ?? 0,
+        humidity: humidities[i] ?? 0,
+        precipitationProbability: precipitationProbs[i] ?? 0,
+      });
+    }
+  }
+
   return {
     location: {
       name: geo.name,
@@ -138,5 +177,6 @@ export async function getWeather(geo: GeoResult): Promise<WeatherBundle> {
     },
     current,
     daily,
+    hourly,
   };
 }
